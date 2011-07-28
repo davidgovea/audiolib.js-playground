@@ -1,0 +1,25 @@
+# use glob syntax.
+syntax: glob
+
+NDdata/Data*
+.DS_Store*
+*.pyc
+*~
+*.php
+config.xml
+myconfig.xml
+build
+dist
+web
+# extras
+style.css
+tests
+examples/bug*
+examples/_*
+
+
+
+# switch to regexp syntax.
+syntax: regexp
+# ^\.pc/
+^images

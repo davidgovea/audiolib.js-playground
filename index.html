@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>audiolib.js-playground</title>
+        <script type="text/javascript" src="../audiolib.js/lib/audiolib.js"></script>
+        <script type="text/javascript" src="../dsp.js/dsp.js"></script>
+        
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script type="text/javascript" src="jqplot/src/jquery.jqplot.js"></script> 
+        <script type="text/javascript" src="jqplot/src/plugins/jqplot.barRenderer.js"></script>
+        <script type="text/javascript" src="jqplot/src/plugins/jqplot.categoryAxisRenderer.js"></script>
+        <script type="text/javascript" src="jqplot/src/plugins/jqplot.pointLabels.js"></script>
+                
+        <link rel="stylesheet" type="text/css" href="../jqplot/src/jquery.jqplot.css" /> 
+        
+        <script type="text/javascript" src="index.js"></script>
+
+        <script>
+$(document).ready(function(){
+    
+    function nearestPow2( aSize ){
+        return Math.pow( 2, Math.round( Math.log( aSize ) / Math.log( 2 ) ) ); 
+    }
+
+(function plotPCM(buffer, channelCount){
+//    var canvas      = document.getElementById('c'),
+//        context     = canvas.getContext('2d'),
+//        width       = canvas.width,
+//        height      = canvas.height,
+//        halfHeight  = height/2,
+    var waveScale   = 100, // Pixel height of amplitude 1
+        sampleRate  = 44100,
+        plotTime    = 0.3, // Seconds to plot
+        xscale      = 1000/(sampleRate*plotTime),
+        samples     = Math.floor(sampleRate/plotTime),
+        osc         = new audioLib.Oscillator(sampleRate, 220),
+        osc2        = new audioLib.Oscillator(sampleRate, 3000),
+        bitcrusher  = new audioLib.BitCrusher(sampleRate, 2),
+        fftLen      = 4096;
+    
+    
+    var sig = [];
+    var fftArr = new Float32Array(fftLen);
+
+    osc.generate();
+    for(var i=0, max=sampleRate*plotTime; i<max; i++){
+        
+        sig.push([i*xscale, (osc.getMix()) ])
+        osc.generate();
+    }
+    
+    osc.reset();
+    osc.generate();
+    
+    for(var j=0; j<fftLen; j++){
+        fftArr[j]=osc.getMix();
+        osc.generate();
+    }
+    
+    var fft = new FFT(fftLen,sampleRate);
+    fft.forward(fftArr);
+    
+    var cheese = [];
+    for(var k=0, maxk=fft.spectrum.length;k<200;k++){
+        cheese[k]=fft.spectrum[k];
+    }
+       
+    var plot1 = $.jqplot('chart1', [sig], {  
+      //  seriesDefaults:{
+        //    renderer:$.jqplot.BarRenderer,
+        //    rendererOptions: {fillToZero: true}
+      //  },
+        series:[{showMarker:false}]
+    });
+    
+    var plot2 = $.jqplot('chart2', [cheese], {  
+      //  seriesDefaults:{
+        //    renderer:$.jqplot.BarRenderer,
+        //    rendererOptions: {fillToZero: true}
+      //  },
+        series:[{showMarker:false}]
+    });
+    
+   
+    
+}());
+
+});
+
+        </script>
+    </head>
+    <body>
+        <div id="chart1" style="height:250px; width:1000px;"></div> 
+        <div id="chart2" style="height:250px; width:1000px;"></div> 
+    </body>
+</html>
+
